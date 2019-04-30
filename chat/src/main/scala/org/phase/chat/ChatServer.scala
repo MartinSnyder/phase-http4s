@@ -23,7 +23,8 @@ object ChatServer {
       // in the underlying routes.
       httpApp = (
         ChatRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        ChatRoutes.jokeRoutes[F](jokeAlg)
+        ChatRoutes.jokeRoutes[F](jokeAlg) <+>
+        ChatRoutes.chatRoutes
       ).orNotFound
 
       // With Middlewares in place
