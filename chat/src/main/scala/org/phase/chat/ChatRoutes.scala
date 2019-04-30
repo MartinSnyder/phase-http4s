@@ -42,17 +42,10 @@ object ChatRoutes {
     import dsl._
     HttpRoutes.of[F] {
       case GET -> Root / "ws" / name =>
-
-        val q = Queue.unbounded[F, WebSocketFrame]
-
-        q.flatMap(actualQ => {
-          def toClient: Stream[F, WebSocketFrame] = actualQ.dequeue
-
-          def fromClient: Pipe[F, WebSocketFrame, Unit] = actualQ.enqueue
-
-
-          WebSocketBuilder[F].build(toClient, fromClient)
-        })
+        for (
+          q <- Queue.unbounded[F, WebSocketFrame];
+          wsResponse <- WebSocketBuilder[F].build(q.dequeue, q.enqueue)
+        ) yield wsResponse
     }
   }
 }
