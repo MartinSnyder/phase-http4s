@@ -1,17 +1,20 @@
 package org.phase.chat
 
-import cats.effect.{ConcurrentEffect, Effect, ExitCode, IO, IOApp, Timer, ContextShift}
+import cats.effect.{ConcurrentEffect, ContextShift, Effect, ExitCode, IO, IOApp, Timer}
 import cats.implicits._
+import fs2.concurrent.{Queue, Topic}
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.implicits._
 import org.http4s.server.middleware.Logger
-import fs2.Stream
+import fs2.{INothing, Stream}
+import org.http4s.websocket.WebSocketFrame
+
 import scala.concurrent.ExecutionContext.global
 
 object ChatServer {
 
-  def stream[F[_]: ConcurrentEffect](implicit T: Timer[F], C: ContextShift[F]): Stream[F, Nothing] = {
+  def stream[F[_]: ConcurrentEffect](q: Queue[F, WebSocketFrame], t: Topic[F, WebSocketFrame])(implicit T: Timer[F], C: ContextShift[F]): Stream[F, INothing] = {
     for {
       client <- BlazeClientBuilder[F](global).stream
       helloWorldAlg = HelloWorld.impl[F]
@@ -24,7 +27,7 @@ object ChatServer {
       httpApp = (
         ChatRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         ChatRoutes.jokeRoutes[F](jokeAlg) <+>
-        ChatRoutes.chatRoutes
+        ChatRoutes.chatRoutes(q, t)
       ).orNotFound
 
       // With Middlewares in place

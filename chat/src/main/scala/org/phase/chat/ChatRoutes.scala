@@ -2,7 +2,7 @@ package org.phase.chat
 
 import cats.effect.{Concurrent, Sync}
 import cats.implicits._
-import fs2.concurrent.Queue
+import fs2.concurrent.{Queue, Topic}
 import io.circe.Json
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
@@ -37,14 +37,14 @@ object ChatRoutes {
     }
   }
 
-  def chatRoutes[F[_]: Sync: Concurrent]: HttpRoutes[F] = {
+  def chatRoutes[F[_]: Sync: Concurrent](q: Queue[F, WebSocketFrame], t: Topic[F, WebSocketFrame]): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F]{}
     import dsl._
+
     HttpRoutes.of[F] {
       case GET -> Root / "ws" / name =>
         for (
-          q <- Queue.unbounded[F, WebSocketFrame];
-          wsResponse <- WebSocketBuilder[F].build(q.dequeue, q.enqueue)
+          wsResponse <- WebSocketBuilder[F].build(t.subscribe(1000), q.enqueue)
         ) yield wsResponse
     }
   }
