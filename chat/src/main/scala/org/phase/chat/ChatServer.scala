@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.global
 
 object ChatServer {
 
-  def stream[F[_]: ConcurrentEffect](q: Queue[F, WebSocketFrame], t: Topic[F, WebSocketFrame])(implicit T: Timer[F], C: ContextShift[F]): Stream[F, INothing] = {
+  def stream[F[_]: ConcurrentEffect](q: Queue[F, FromClient], t: Topic[F, ToClient])(implicit T: Timer[F], C: ContextShift[F]): Stream[F, INothing] = {
     for {
       client <- BlazeClientBuilder[F](global).stream
       helloWorldAlg = HelloWorld.impl[F]
