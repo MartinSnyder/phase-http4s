@@ -1,6 +1,8 @@
 # PHASE live-coding session
 
-Chat server using WebSockets and http4s
+Chat server using WebSockets and [http4s](https://http4s.org/). Similar to [http4s-chatserver][http4s-chatserver], but not as full-featured.
+
+This repository was created to support a live-coding presentation:
 
 * [Event Listing][meetup]
 * [Session Recording][video]
