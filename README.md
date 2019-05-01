@@ -3,7 +3,7 @@
 Chat server using WebSockets and http4s
 
 * [Event Listing][meetup]
-* Session Recording
+* [Session Recording][video]
 
 ## Folder Structure
 
@@ -23,3 +23,4 @@ sbt -sbt-version 1.2.8 new http4s/http4s.g8 -b 0.20
 [http4s]: https://http4s.org/
 [http4s-chatserver]: https://github.com/MartinSnyder/http4s-chatserver
 [meetup]: https://www.meetup.com/scala-phase/events/259959798/
+[video]: https://www.youtube.com/watch?v=py_V_7gD5WU
