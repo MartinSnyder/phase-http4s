@@ -1,5 +1,6 @@
 package org.phase.chat
 
+import cats.effect.concurrent.Ref
 import cats.effect.{ConcurrentEffect, ContextShift, Effect, ExitCode, IO, IOApp, Timer}
 import cats.implicits._
 import fs2.concurrent.{Queue, Topic}
@@ -14,7 +15,7 @@ import scala.concurrent.ExecutionContext.global
 
 object ChatServer {
 
-  def stream[F[_]: ConcurrentEffect](q: Queue[F, FromClient], t: Topic[F, ToClient])(implicit T: Timer[F], C: ContextShift[F]): Stream[F, INothing] = {
+  def stream[F[_]: ConcurrentEffect](q: Queue[F, FromClient], t: Topic[F, ToClient], ref: Ref[F, State])(implicit T: Timer[F], C: ContextShift[F]): Stream[F, INothing] = {
     for {
       client <- BlazeClientBuilder[F](global).stream
       helloWorldAlg = HelloWorld.impl[F]
@@ -27,7 +28,7 @@ object ChatServer {
       httpApp = (
         ChatRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
         ChatRoutes.jokeRoutes[F](jokeAlg) <+>
-        ChatRoutes.chatRoutes(q, t)
+        ChatRoutes.chatRoutes(q, t, ref)
       ).orNotFound
 
       // With Middlewares in place
